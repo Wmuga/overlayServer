@@ -1,0 +1,193 @@
+@keyframes appear {
+  from {
+    margin-left: 100%;
+    width: 300%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
+}
+
+@keyframes appear-right {
+  from {
+    margin-right: 100%;
+    width: 0%;
+  }
+
+  to {
+    margin-right: 0%;
+    width: 100%;
+  }
+}
+
+@font-face{
+font-family: Roboto;
+src: url(/static/fonts/RobotoCondensed-Regular.ttf);
+}
+
+div{
+font-family: Roboto;
+}
+
+.chat-container .chat .msg-container .msg{
+  border: 2px solid #554C42;
+  /*text-shadow: black 1px 1px 0,black -1px 1px 0,black 1px -1px 0,black -1px -1px 0;*/
+}
+
+.chat-container .chat .msg-container .top-container .msg-username{
+  width: inherit;
+  flex-grow: 1;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.chat-container .chat .msg-container .top-container .badges-container .badge{
+  height: 28px;
+}
+
+
+.chat-container .chat .msg-container .top-container{
+  display: flex;
+  flex-direction: row;
+}
+
+.chat-container .chat .msg-container{
+  color: 392522;
+  font-size:18pt;
+  animation-name: appear;
+  animation-duration: 200ms;
+}
+
+.chat-container .chat{
+  color: #311C1A;
+  word-break: break-word;
+  bottom: 0px;
+  position: absolute;
+  left:8px;
+  width: 234px;
+  height: 1030px;
+  background-color:#B3B2A2;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  overflow-y: hidden;
+}
+.chat-container{
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 250px;
+  height:1080px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border-right: 5px solid #6A6960;
+  border-left: 5px solid #6A6960;
+  box-shadow: 0px 0px 16px 4px #444441 inset;
+}
+
+.event_overlay{
+  position: absolute;
+  width: 200;
+  font-size:18pt;
+  overflow-x: hidden;
+  word-break: break-word;
+  margin-top: 5%;
+  margin-left: 80%;
+  color: white;
+  /*text-shadow: black 1px 1px 0,black -1px 1px 0,black 1px -1px 0,black -1px -1px 0;*/
+}
+
+.event_overlay .event-img{
+  width: 200px;
+  height: 200px;
+}
+
+.player{
+  width: 200px;
+  height: 200px;
+}
+
+.song-overlay{
+  top:5px;
+  display: flex;
+  flex-direction:row;
+  position: absolute;
+  right: 5px;
+  border: 4px solid #77735B;
+  background-color: #53524d90;
+  box-shadow: 0px 0px 3px 5px #F9FDEA;
+  width: auto;
+  height:50px;
+  opacity: 0;
+}
+
+
+.song-overlay .song-img-container .song-img{
+  height:50px;
+}
+
+.song-overlay .song-data{
+  position: relative;
+  display: flex;
+  flex-direction:row;
+  flex-grow:1;
+  height: 28px;
+  text-align:center;
+  color: #F5F1E6;
+  text-align: center;
+  font-size: 22pt;
+}
+.viewer{
+  position: absolute;
+  bottom: 40px;
+  right: 5px;
+  width: 500px;
+  height: 30px;
+  background-color:#3250d6;
+  border: 2px solid #041870;
+  color: white;
+  text-shadow: black 1px 1px 0,black -1px 1px 0,black 1px -1px 0,black -1px -1px 0;
+  font-size: 16pt;
+  animation-name: appear-right;
+  animation-duration: 200ms;
+}
+
+.column{
+  box-shadow:  -3px 0px 2px #2B2C27, 3px 0px 2px #2B2C27, -2px 0px #848378, 2px 0px #848378;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 4px;
+  height:1160px;
+  background-color: #64635A;
+}
+.right{
+  left:auto;
+  right: 0px;
+}
+
+.line{
+  position: absolute;
+  top:45px;
+  box-shadow:  0px 3px 2px #2B2C27, 0px -2px #848378, 0px 2px #848378;
+  width: 235px;
+  height: 4px;
+  left: 8px;
+  background-color: #64635A;
+}
+
+.symbol-containter{
+  position: absolute;
+  top:20px;
+  width: inherit;
+  height: 80px;
+  display:flex;
+  justify-content:center;
+}
+
+.symbol{
+  width: 60px;
+  height: 60px;
+}

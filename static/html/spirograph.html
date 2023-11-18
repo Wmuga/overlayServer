@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Spirograph</title>
+    <meta charset="utf-8"/>
+    <script src="/static/js/spiro.js"></script>
+</head>
+<body onload="Isetup()">
+    <canvas id="spiro" width="600" height="600"></canvas>
+    <p>Randomize:<input type="checkbox" id="rand" checked></p>
+    <p>Clear:<input type="checkbox" id="clear" checked></p>
+    <p>
+    r:
+    <input type="range" id="r" min="0.1" max="0.9" step="0.1" value="0.6">
+    </p>
+    <p>
+        d:
+        <input type="range" id="d" min="0.1" max="1.5" step="0.1" value="1.2">
+    </p>
+</body>
+</html>
