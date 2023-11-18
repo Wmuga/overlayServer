@@ -6,12 +6,15 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type TwitchHandlers struct {
 	client       http.Client
 	clientID     string
 	clientSecret string
+	channelID    string
 	logger       *log.Logger
 }
 
@@ -22,29 +25,73 @@ type accessTokenT struct {
 const (
 	urlReqTokenBase = "https://id.twitch.tv/oauth2/token?client_id=%v&client_secret=%v&grant_type=client_credentials"
 	urlBadges       = "https://badges.twitch.tv/v1/badges/global/display"
+	urlChannelInfo  = "https://api.twitch.tv/helix/users?login=%v"
+	urlBttvGlobal   = "https://api.betterttv.net/3/cached/emotes/global"
+	urlBttvChannel  = "https://api.betterttv.net/3/cached/users/twitch/%v"
 )
 
-func NewTwitchHandlers(clientID string, clientSecret string, errLogger *log.Logger) *TwitchHandlers {
+func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger) *TwitchHandlers {
 	return &TwitchHandlers{
 		client:       http.Client{},
 		clientID:     clientID,
 		clientSecret: clientSecret,
+		channelID:    channelID,
 		logger:       errLogger,
 	}
 }
 
-func (h *TwitchHandlers) getTwitchBadges(w http.ResponseWriter, r *http.Request) {
+func (h *TwitchHandlers) GetBttvChannelEmotes(w http.ResponseWriter, r *http.Request) {
+	url := fmt.Sprintf(urlChannelInfo, h.channelID)
+	resp, err := h.request("GET", url, nil)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	h.writeResponse(w, resp)
+}
+
+func (h *TwitchHandlers) GetBttvGlobalEmotes(w http.ResponseWriter, r *http.Request) {
+	resp, err := h.request("GET", urlBttvGlobal, nil)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	h.writeResponse(w, resp)
+}
+
+func (h *TwitchHandlers) GetChannelInfo(w http.ResponseWriter, r *http.Request) {
+	login := mux.Vars(r)["login"]
+	url := fmt.Sprintf(urlChannelInfo, login)
+	headers, err := h.getHelixHeaders()
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	resp, err := h.request("GET", url, headers)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	h.writeResponse(w, resp)
+}
+
+func (h *TwitchHandlers) GetTwitchBadges(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.request("GET", urlBadges, nil)
 	if err != nil {
 		h.logger.Println(err)
 		w.WriteHeader(500)
 		return
 	}
-	_, err = w.Write(resp)
 
-	if err != nil {
-		h.logger.Println(err)
-	}
+	h.writeResponse(w, resp)
 }
 
 func (h *TwitchHandlers) getHelixHeaders() (map[string]string, error) {
@@ -103,4 +150,12 @@ func (h *TwitchHandlers) request(method string, url string, headers map[string]s
 		return nil, err
 	}
 	return bytes, nil
+}
+
+func (h *TwitchHandlers) writeResponse(w http.ResponseWriter, bytes []byte) {
+	_, err := w.Write(bytes)
+
+	if err != nil {
+		h.logger.Println(err)
+	}
 }
