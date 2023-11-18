@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -30,6 +31,10 @@ const (
 	urlBttvChannel  = "https://api.betterttv.net/3/cached/users/twitch/%v"
 )
 
+var (
+	badStatus = errors.New("bad status code")
+)
+
 func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger) *TwitchHandlers {
 	return &TwitchHandlers{
 		client:       http.Client{},
@@ -41,12 +46,11 @@ func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.
 }
 
 func (h *TwitchHandlers) GetBttvChannelEmotes(w http.ResponseWriter, r *http.Request) {
-	url := fmt.Sprintf(urlChannelInfo, h.channelID)
+	url := fmt.Sprintf(urlBttvChannel, h.channelID)
 	resp, err := h.request("GET", url, nil)
 	if err != nil {
 		h.logger.Println(err)
 		w.WriteHeader(500)
-		return
 	}
 
 	h.writeResponse(w, resp)
@@ -57,7 +61,6 @@ func (h *TwitchHandlers) GetBttvGlobalEmotes(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		h.logger.Println(err)
 		w.WriteHeader(500)
-		return
 	}
 
 	h.writeResponse(w, resp)
@@ -77,7 +80,6 @@ func (h *TwitchHandlers) GetChannelInfo(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		h.logger.Println(err)
 		w.WriteHeader(500)
-		return
 	}
 
 	h.writeResponse(w, resp)
@@ -117,7 +119,7 @@ func (h *TwitchHandlers) requestToken() (string, error) {
 
 func requestJson[T any](h *TwitchHandlers, method string, url string, headers map[string]string) (r T, e error) {
 	resp, err := h.request(method, url, headers)
-	if err != nil {
+	if err != nil && err != badStatus {
 		return r, err
 	}
 	var res T
@@ -125,7 +127,7 @@ func requestJson[T any](h *TwitchHandlers, method string, url string, headers ma
 	if err != nil {
 		return r, err
 	}
-	return res, nil
+	return res, err
 }
 
 func (h *TwitchHandlers) request(method string, url string, headers map[string]string) ([]byte, error) {
@@ -149,6 +151,11 @@ func (h *TwitchHandlers) request(method string, url string, headers map[string]s
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode/100 != 2 {
+		return bytes, badStatus
+	}
+
 	return bytes, nil
 }
 
