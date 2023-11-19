@@ -135,10 +135,8 @@ func (h *TwitchHandlers) request(method string, url string, headers map[string]s
 	if err != nil {
 		return nil, err
 	}
-	if headers != nil {
-		for name, value := range headers {
-			req.Header.Set(name, value)
-		}
+	for name, value := range headers {
+		req.Header.Set(name, value)
 	}
 
 	resp, err := h.client.Do(req)
