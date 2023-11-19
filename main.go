@@ -33,6 +33,7 @@ func main() {
 		os.Getenv("TWITCH_SECRET"),
 		os.Getenv("CHANNEL_ID"),
 		errLogger,
+		socketServer,
 	)
 	r := mux.NewRouter()
 
@@ -41,6 +42,7 @@ func main() {
 	s.HandleFunc("/bttv/global", twitch.GetBttvGlobalEmotes)
 	s.HandleFunc("/bttv/channel", twitch.GetBttvChannelEmotes)
 
+	r.HandleFunc("/eventsub/callback/", twitch.EventSub)
 	r.PathPrefix("/socket.io").Handler(socketServer)
 	r.PathPrefix("/").HandlerFunc(statics.Static)
 	r.Use(middleware.GetRequestsLogger(log.New(os.Stdout, "[REQ]: ", log.Ltime)))

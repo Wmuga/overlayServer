@@ -7,7 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"server/pkg/events"
+	"server/pkg/eventsub"
+	"server/pkg/socket"
 
+	sio "github.com/ambelovsky/gosf-socketio"
 	"github.com/gorilla/mux"
 )
 
@@ -17,6 +21,8 @@ type TwitchHandlers struct {
 	clientSecret string
 	channelID    string
 	logger       *log.Logger
+	logic        *events.DBEventLogic
+	socket       *sio.Server
 }
 
 type accessTokenT struct {
@@ -35,13 +41,15 @@ var (
 	badStatus = errors.New("bad status code")
 )
 
-func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger) *TwitchHandlers {
+func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, socket *sio.Server) *TwitchHandlers {
 	return &TwitchHandlers{
 		client:       http.Client{},
 		clientID:     clientID,
 		clientSecret: clientSecret,
 		channelID:    channelID,
 		logger:       errLogger,
+		logic:        events.NewEventLogic(),
+		socket:       socket,
 	}
 }
 
@@ -94,6 +102,40 @@ func (h *TwitchHandlers) GetTwitchBadges(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.writeResponse(w, resp)
+}
+
+func (h *TwitchHandlers) EventSub(w http.ResponseWriter, r *http.Request) {
+	es := &eventsub.EventSub{}
+
+	bytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	err = json.Unmarshal(bytes, es)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	if es.Challenge != "" {
+		h.writeResponse(w, []byte(es.Challenge))
+		return
+	}
+
+	ed := eventsub.Convert(*es)
+	h.logic.AddEvent(ed)
+
+	h.socket.BroadcastTo(socket.RoomEventSub, "data", fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
+	bytes, err = json.Marshal(ed)
+	if err != nil {
+		h.logger.Println(err)
+		return
+	}
+	h.socket.BroadcastTo(socket.RoomOverlay, "data", string(bytes))
 }
 
 func (h *TwitchHandlers) getHelixHeaders() (map[string]string, error) {
