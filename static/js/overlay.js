@@ -9,11 +9,10 @@ const options = {
 };
 
 
-let xhr = new XMLHttpRequest();
 let badges = get_twitch_badges['badge_sets']
 let bttv_emotes = get_bttv_emotes()
 let song_overlay = document.getElementsByClassName('song-overlay')[0]
-let socket = io('http://0.0.0.0:3001', { transports : ['websocket'] })
+let socket = io('ws://localhost:3000', {transports: ['websocket']})
 
 function parse_emote_data(data){
     let parsed_data = {}
