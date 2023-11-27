@@ -40,17 +40,17 @@ func (l *DBEventLogic) AddEvent(event eventsub.EventData) error {
 	return err
 }
 
-func (l *DBEventLogic) GetLast() ([]*eventsub.EventData, error) {
+func (l *DBEventLogic) GetLast() ([]eventsub.EventData, error) {
 	rows, err := l.db.Query(sqlGet10Events)
 	if err != nil {
 		return nil, err
 	}
-	events := make([]*eventsub.EventData, 10)
+	events := make([]eventsub.EventData, 10)
 	i := 0
 	for rows.Next() && i < 10 {
 		event := eventsub.EventData{}
 		rows.Scan(&event.Type, &event.Nickname)
-		events[i] = &event
+		events[i] = event
 		i++
 	}
 	return events, nil

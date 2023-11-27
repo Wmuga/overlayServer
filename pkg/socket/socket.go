@@ -1,7 +1,9 @@
 package socket
 
 import (
+	"encoding/json"
 	"log"
+	"server/pkg/events"
 
 	io "github.com/ambelovsky/gosf-socketio"
 )
@@ -61,14 +63,25 @@ func Route(serv *io.Server, conLogger *log.Logger) {
 		ROUTES FOR BOT
 	*/
 
-	/* ??????
-	errcheck(serv.On("last10",func(c *io.Channel){
-	}))*/
+	errcheck(serv.On("last10", func(c *io.Channel) {
+		data, err := events.NewEventLogic().GetLast()
+		if err != nil {
+			conLogger.Printf("Error: %v\n", err)
+			return
+		}
+		bytes, err := json.Marshal(data)
+		if err != nil {
+			conLogger.Printf("Error: %v\n", err)
+			return
+		}
+		c.Emit("last10", bytes)
+	}))
 
 	errcheck(serv.On("song", func(c *io.Channel, song any) {
 		if v, ex := conRooms[c.Id()]; !ex || v != RoomTwitchbot {
 			return
 		}
+		conLogger.Println("New song data")
 		serv.BroadcastTo(RoomOverlay, "song", song)
 	}))
 
@@ -76,6 +89,7 @@ func Route(serv *io.Server, conLogger *log.Logger) {
 		if v, ex := conRooms[c.Id()]; !ex || v != RoomTwitchbot {
 			return
 		}
+		conLogger.Println("New viewer data")
 		serv.BroadcastTo(RoomOverlay, "viewer", viewer)
 	}))
 
@@ -83,6 +97,7 @@ func Route(serv *io.Server, conLogger *log.Logger) {
 		if v, ex := conRooms[c.Id()]; !ex || v != RoomTwitchbot {
 			return
 		}
+		conLogger.Println("New chat data")
 		serv.BroadcastTo(RoomOverlay, "chat", chat)
 	}))
 }
