@@ -9,7 +9,7 @@ const options = {
 };
 
 
-let badges = get_twitch_badges['badge_sets']
+let badges = {}
 let bttv_emotes = get_bttv_emotes()
 let song_overlay = document.getElementsByClassName('song-overlay')[0]
 let socket = io('ws://localhost:3000', {transports: ['websocket']})
@@ -76,7 +76,7 @@ function add_new_message(userstate,message){
     for (let badge in userstate.badges)
         {
             let badge_img = document.createElement('img')
-            badge_img.src = badges[badge]['versions'][userstate.badges[badge]]['image_url_2x']
+            badge_img.src = badges[badge]['versions'][0]['image_url_2x']
             badge_img.classList.add('badge')
             badges_container.appendChild(badge_img)
         }
@@ -112,6 +112,10 @@ client.on('message',(_,userstate,message) =>{
 
 client.on('connected',() =>{
     console.log('connected')
+    let bs = get_twitch_badges()['data']
+    for (let b of bs){
+        badges[b["set_id"]] = b
+    }
 });
 
 client.on('raided',(_, username) =>{

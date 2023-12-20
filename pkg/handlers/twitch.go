@@ -31,7 +31,7 @@ type accessTokenT struct {
 
 const (
 	urlReqTokenBase = "https://id.twitch.tv/oauth2/token?client_id=%v&client_secret=%v&grant_type=client_credentials"
-	urlBadges       = "https://badges.twitch.tv/v1/badges/global/display"
+	urlBadges       = "https://api.twitch.tv/helix/chat/badges/global"
 	urlChannelInfo  = "https://api.twitch.tv/helix/users?login=%v"
 	urlBttvGlobal   = "https://api.betterttv.net/3/cached/emotes/global"
 	urlBttvChannel  = "https://api.betterttv.net/3/cached/users/twitch/%v"
@@ -94,7 +94,14 @@ func (h *TwitchHandlers) GetChannelInfo(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *TwitchHandlers) GetTwitchBadges(w http.ResponseWriter, r *http.Request) {
-	resp, err := h.request("GET", urlBadges, nil)
+	headers, err := h.getHelixHeaders()
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	resp, err := h.request("GET", urlBadges, headers)
 	if err != nil {
 		h.logger.Println(err)
 		w.WriteHeader(500)
@@ -146,7 +153,7 @@ func (h *TwitchHandlers) getHelixHeaders() (map[string]string, error) {
 
 	return map[string]string{
 		"Client-ID":     h.clientID,
-		"Authorization": token,
+		"Authorization": fmt.Sprintf("Bearer %v", token),
 	}, nil
 }
 
