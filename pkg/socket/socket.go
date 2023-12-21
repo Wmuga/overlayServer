@@ -108,7 +108,7 @@ func joinNewRoom(c *io.Channel, room string, l *log.Logger, rooms map[string]str
 		l.Println(err.Error())
 	}
 	rooms[c.Id()] = room
-	err = c.Join(RoomEventSub)
+	err = c.Join(room)
 	if err != nil {
 		l.Println(err.Error())
 	}
