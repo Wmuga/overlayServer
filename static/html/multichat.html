@@ -1,0 +1,130 @@
+<html>
+  <body>
+    <main id="app">
+      <div id="players"></div>
+      <div id="chats"></div>
+    </main>   
+    <style>
+      #players,
+      #chats{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 350px);
+        height: max-content;
+      }
+
+      .dark{
+        background-color: #18181B;
+        color: #EFEFF1;
+      }
+
+      .name{
+        position: relative;
+        align-self: center;
+        text-align: center;
+        font-size: 14pt;
+        width: calc(100% - 2px);
+        border: 1px solid white;
+      }
+
+      .container{
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: max-content;
+        height: max-content;
+      }
+    </style>
+    
+    <script>
+      const PARENTS = 'localhost,unbiased-stunning-tahr.ngrok-free.app'
+      const PLAYER_PARAM = 'p'
+      const CHANNELS_PARAM = 'c'
+      const DARK_THEME_PARAM = 'dark'
+      const WIDTH = 350
+      const HEIGHT = 500
+      const PLAYER_WIDTH = HEIGHT/8*16
+      
+      let chats = document.querySelector('#chats')
+      let players = document.querySelector('#players')
+      let dark_theme = false
+      
+      function getUrl(channel, player){
+        let url = `https://www.twitch.tv/embed/${channel}/chat?`
+        if (player){
+          url = `https://player.twitch.tv/?channel=${channel}&`
+        }
+        let parents = PARENTS.split(',').map(e=>'parent='+e)
+        url += parents.join('&')
+
+        if (dark_theme){
+          url += '&darkpopout'
+        }
+        return url
+      }
+
+      function getContainer(channel){
+        let container = document.createElement('div')
+        container.classList.add('container')
+
+        let name = document.createElement('span')
+        name.innerText=channel
+        name.classList.add('name')
+        container.appendChild(name)
+
+        return container
+      }
+
+      function addChat(channel){
+        let url = getUrl(channel, false)
+        let container = getContainer(channel)
+
+        let iframe = document.createElement('iframe')
+        iframe.src=url
+        iframe.height = HEIGHT
+        iframe.width = WIDTH
+        container.appendChild(iframe)
+
+        chats.appendChild(container)
+      }
+
+      function addPlayer(channel){
+        let url = getUrl(channel, true)
+        let container = getContainer(channel)
+
+        let iframe = document.createElement('iframe')
+        iframe.src=url
+        iframe.width = PLAYER_WIDTH 
+        iframe.height= HEIGHT
+        container.appendChild(iframe)
+
+        players.appendChild(container)
+      }
+
+      function init(){
+        players.style['grid-template-columns'] = `repeat(auto-fit, ${PLAYER_WIDTH}px)`
+        chats.style['grid-template-columns'] = `repeat(auto-fit, ${WIDTH}px)`
+        
+        let params = new URLSearchParams(window.location.search);
+        
+        if (params.get(DARK_THEME_PARAM) != undefined){
+          dark_theme = true
+          document.body.classList.add('dark')
+        }
+
+        let channel_players = params.get(PLAYER_PARAM)?.split(',')??[]
+        for (let p of channel_players){
+          addPlayer(p)
+        }
+
+        let channel_chats = params.get(CHANNELS_PARAM)?.split(',')??[]
+        for (let c of channel_chats){
+          addChat(c)
+        }
+      }
+
+      init()
+    </script>
+
+  </body>
+</html>
+
