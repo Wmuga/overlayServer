@@ -13,6 +13,7 @@ let badges = {}
 let bttv_emotes = get_bttv_emotes()
 let song_overlay = document.getElementsByClassName('song-overlay')[0]
 let socket = io('ws://localhost:3000', {transports: ['websocket']})
+let finished = true
 
 function parse_emote_data(data){
     let parsed_data = {}
@@ -48,7 +49,6 @@ function emote_parse_bttv(message){
 }
 
 function add_new_message(userstate,message){
-
     if (document.getElementsByClassName('msg').length>15) {
         let messages = document.getElementsByClassName('msg')
         messages[0].parentElement.removeChild(messages[0])
@@ -182,7 +182,7 @@ function set_viewer_event(data){
     document.body.appendChild(event);
     let sound_src = document.createElement('source')
     sound_src.type='audio/mpeg'
-    sound_src.src = `/overlay/sounds/hello/hello${Math.floor(Math.random()*4)+1}.mp3`
+    sound_src.src = `/static/sounds/hello/hello${Math.floor(Math.random()*4)+1}.mp3`
     sound.appendChild(sound_src)
     play_sound('viewer-sound');
     return new Promise(resolve => setTimeout(function(){
@@ -190,9 +190,12 @@ function set_viewer_event(data){
         event.parentNode.removeChild(event);
         sound.removeChild(sound_src)
         resolve();
-    },2500))
+    },4000))
 }
 async function resolve_events(){
+    if (!finished) return
+
+    finished = false
     if (event_array.length>0){
         let event = event_array.pop();
         switch (event.event){
@@ -209,6 +212,7 @@ async function resolve_events(){
                 break;    
         }
      }
+     finished = true
 }
 
 function change_chat_width(width){
@@ -221,12 +225,13 @@ socket.on('connect',()=>{
 })
 
 socket.on('song',(data)=>{
+	console.log(data)
     if (data && data !='\"null\"' && data!='null'){
         data = JSON.parse(data)
         song_overlay.style.opacity = 1
-        document.getElementsByClassName('artist')[0].innerHTML = data['Channel']
-        document.getElementsByClassName('song-name')[0].innerHTML = data['Title']
-        document.getElementsByClassName('song-img')[0].src=data['img']=='null'? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-oHvI4bjEgj3l-hq3wRbIsbknaXxdpJBeew&usqp=CAU' :data['img']
+        document.getElementsByClassName('artist')[0].innerHTML = data['artist']
+        document.getElementsByClassName('song-name')[0].innerHTML = data['track']
+        document.getElementsByClassName('song-img')[0].src=data['img']?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-oHvI4bjEgj3l-hq3wRbIsbknaXxdpJBeew&usqp=CAU'
     }else{
         song_overlay.style.opacity = 0
     }

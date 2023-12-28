@@ -74,6 +74,7 @@ font-family: Roboto;
   justify-content:flex-end;
   overflow-y: hidden;
 }
+
 .chat-container{
   position: absolute;
   bottom: 0px;
