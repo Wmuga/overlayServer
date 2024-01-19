@@ -1,0 +1,62 @@
+<html>
+  <body>
+    <main id="app" class="dark">
+			<div id = "players">
+				<iframe src="https://player.twitch.tv/?channel=iarspider&parent=localhost" width="100%" height="48%"></iframe>
+				<iframe src="https://player.twitch.tv/?channel=moar__&parent=localhost" width="100%" height="48%"></iframe>
+			</div>
+			<div id = "chat">
+				<iframe src="https://www.twitch.tv/embed/iarspider/chat?parent=localhost&darkpopout" width="32%" height="90%"></iframe>
+				<iframe src="https://www.twitch.tv/embed/moar__/chat?parent=localhost&darkpopout" width="32%" height="90%"></iframe>
+				<iframe src="https://www.twitch.tv/embed/danzio_plagius/chat?parent=localhost&darkpopout" width="32%" height="90%"></iframe>
+			</div>
+    </main>   
+  <style>
+	body{
+		background-color: #18181B;
+	}
+	#app{
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+	#players{
+		display: flex;
+		flex-direction: column;
+		width: 49%;
+		height: 100%;
+	}
+	#chat{
+		display: flex;
+		width: 50%;
+		height: 100%;
+	}
+	</style>
+  <script>
+		function getUrl(channel){
+			return `https://player.twitch.tv/?channel=${channel}&parent=localhost`
+		}
+
+		function init(){
+			const ars = [['iarspider','moar__'],['iarspider','danzio_plagius'],['moar__','danzio_plagius']]
+			let params = new URLSearchParams(window.location.search);
+			let variant = params.get('v')??'1'
+			variant = +variant
+			if (variant <= 0 || variant > 3){
+				variant = 1
+			}
+			let srcs = ars[variant-1]
+
+			let items = document.querySelector('#players').children
+			items[0].src=getUrl(srcs[0])
+			items[1].src=getUrl(srcs[1])
+		}
+
+		init()
+	</script>
+
+  </body>
+</html>
+

@@ -40,9 +40,10 @@
       const PLAYER_PARAM = 'p'
       const CHANNELS_PARAM = 'c'
       const DARK_THEME_PARAM = 'dark'
-      const WIDTH = 350
-      const HEIGHT = 500
-      const PLAYER_WIDTH = HEIGHT/8*16
+      const WIDTH = 400
+      const HEIGHT = 400
+	  const PLAYER_HEIGHT = 300
+      const PLAYER_WIDTH = PLAYER_HEIGHT/8*16
       
       let chats = document.querySelector('#chats')
       let players = document.querySelector('#players')
@@ -94,7 +95,7 @@
         let iframe = document.createElement('iframe')
         iframe.src=url
         iframe.width = PLAYER_WIDTH 
-        iframe.height= HEIGHT
+        iframe.height= PLAYER_HEIGHT
         container.appendChild(iframe)
 
         players.appendChild(container)
