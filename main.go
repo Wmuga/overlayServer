@@ -25,7 +25,7 @@ func main() {
 	}
 
 	socketServer := io.NewServer(transport.GetDefaultWebsocketTransport())
-	socket.Route(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
+	sock := socket.Route(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
 
 	statics := handlers.NewStaticData("./static/html/", "./static/")
 	twitch := handlers.NewTwitchHandlers(
@@ -41,6 +41,9 @@ func main() {
 	s.HandleFunc("/twitch/badges", twitch.GetTwitchBadges)
 	s.HandleFunc("/bttv/global", twitch.GetBttvGlobalEmotes)
 	s.HandleFunc("/bttv/channel", twitch.GetBttvChannelEmotes)
+
+	s.HandleFunc("/mus", handlers.GetMusHandler(sock, errLogger)).Methods("POST")
+	s.HandleFunc("/str", handlers.GetStrHandler(sock, errLogger)).Methods("POST")
 
 	r.HandleFunc("/eventsub/callback/", twitch.EventSub)
 	r.PathPrefix("/socket.io").Handler(socketServer)

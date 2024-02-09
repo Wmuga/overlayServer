@@ -26,8 +26,18 @@ func errcheck(err error) {
 	}
 }
 
-func Route(serv *io.Server, conLogger *log.Logger) {
+type Socket struct {
+	serv      *io.Server
+	conLogger *log.Logger
+}
+
+func Route(serv *io.Server, conLogger *log.Logger) *Socket {
 	conRooms := map[string]string{}
+
+	s := &Socket{
+		serv:      serv,
+		conLogger: conLogger,
+	}
 	/*
 		MAIN ROUTES
 	*/
@@ -81,16 +91,14 @@ func Route(serv *io.Server, conLogger *log.Logger) {
 		if v, ex := conRooms[c.Id()]; !ex || v != RoomTwitchbot {
 			return
 		}
-		conLogger.Println("New song data")
-		serv.BroadcastTo(RoomOverlay, "song", song)
+		s.SendSong(song)
 	}))
 
 	errcheck(serv.On("viewer", func(c *io.Channel, viewer any) {
 		if v, ex := conRooms[c.Id()]; !ex || v != RoomTwitchbot {
 			return
 		}
-		conLogger.Println("New viewer data")
-		serv.BroadcastTo(RoomOverlay, "viewer", viewer)
+		s.SendViewer(viewer)
 	}))
 
 	errcheck(serv.On("chat", func(c *io.Channel, chat any) {
@@ -100,6 +108,18 @@ func Route(serv *io.Server, conLogger *log.Logger) {
 		conLogger.Println("New chat data")
 		serv.BroadcastTo(RoomOverlay, "chat", chat)
 	}))
+
+	return s
+}
+
+func (s *Socket) SendViewer(viewer any) {
+	s.conLogger.Println("New viewer data")
+	s.serv.BroadcastTo(RoomOverlay, "viewer", viewer)
+}
+
+func (s *Socket) SendSong(song any) {
+	s.conLogger.Println("New song data")
+	s.serv.BroadcastTo(RoomOverlay, "song", song)
 }
 
 func joinNewRoom(c *io.Channel, room string, l *log.Logger, rooms map[string]string) {
