@@ -8,7 +8,7 @@ import (
 
 	"server/pkg/handlers"
 	"server/pkg/middleware"
-	"server/pkg/socket"
+	"server/pkg/overlay"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	socketServer := io.NewServer(transport.GetDefaultWebsocketTransport())
-	sock := socket.Route(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
+	sock := overlay.RouteSocket(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
 
 	statics := handlers.NewStaticData("./static/html/", "./static/")
 	twitch := handlers.NewTwitchHandlers(
@@ -33,7 +33,7 @@ func main() {
 		os.Getenv("TWITCH_SECRET"),
 		os.Getenv("CHANNEL_ID"),
 		errLogger,
-		socketServer,
+		sock,
 	)
 	r := mux.NewRouter()
 

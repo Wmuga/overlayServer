@@ -9,9 +9,8 @@ import (
 	"net/http"
 	"server/pkg/events"
 	"server/pkg/eventsub"
-	"server/pkg/socket"
+	"server/pkg/overlay"
 
-	sio "github.com/ambelovsky/gosf-socketio"
 	"github.com/gorilla/mux"
 )
 
@@ -22,7 +21,7 @@ type TwitchHandlers struct {
 	channelID    string
 	logger       *log.Logger
 	logic        *events.DBEventLogic
-	socket       *sio.Server
+	overlay      overlay.Overlay
 }
 
 type accessTokenT struct {
@@ -41,7 +40,7 @@ var (
 	badStatus = errors.New("bad status code")
 )
 
-func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, socket *sio.Server) *TwitchHandlers {
+func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, overlay overlay.Overlay) *TwitchHandlers {
 	return &TwitchHandlers{
 		client:       http.Client{},
 		clientID:     clientID,
@@ -49,7 +48,7 @@ func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.
 		channelID:    channelID,
 		logger:       errLogger,
 		logic:        events.NewEventLogic(),
-		socket:       socket,
+		overlay:      overlay,
 	}
 }
 
@@ -136,13 +135,13 @@ func (h *TwitchHandlers) EventSub(w http.ResponseWriter, r *http.Request) {
 	ed := eventsub.Convert(*es)
 	h.logic.AddEvent(ed)
 
-	h.socket.BroadcastTo(socket.RoomEventSub, "data", fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
+	h.overlay.SendEventLog(fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
 	bytes, err = json.Marshal(ed)
 	if err != nil {
 		h.logger.Println(err)
 		return
 	}
-	h.socket.BroadcastTo(socket.RoomOverlay, "data", string(bytes))
+	h.overlay.SendEventSub(string(bytes))
 }
 
 func (h *TwitchHandlers) getHelixHeaders() (map[string]string, error) {

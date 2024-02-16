@@ -5,14 +5,14 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"server/pkg/socket"
+	"server/pkg/overlay"
 )
 
 type strBody struct {
 	Str string `json:"str"`
 }
 
-func GetMusHandler(s *socket.Socket, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
+func GetMusHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, err := io.ReadAll(r.Body)
@@ -24,7 +24,7 @@ func GetMusHandler(s *socket.Socket, l *log.Logger) func(w http.ResponseWriter, 
 	}
 }
 
-func GetStrHandler(s *socket.Socket, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
+func GetStrHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, err := io.ReadAll(r.Body)

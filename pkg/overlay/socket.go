@@ -1,4 +1,4 @@
-package socket
+package overlay
 
 import (
 	"encoding/json"
@@ -31,7 +31,7 @@ type Socket struct {
 	conLogger *log.Logger
 }
 
-func Route(serv *io.Server, conLogger *log.Logger) *Socket {
+func RouteSocket(serv *io.Server, conLogger *log.Logger) Overlay {
 	conRooms := map[string]string{}
 
 	s := &Socket{
@@ -120,6 +120,15 @@ func (s *Socket) SendViewer(viewer any) {
 func (s *Socket) SendSong(song any) {
 	s.conLogger.Println("New song data")
 	s.serv.BroadcastTo(RoomOverlay, "song", song)
+}
+
+func (s *Socket) SendEventLog(log string) {
+	s.conLogger.Println("New eventsub data")
+	s.serv.BroadcastTo(RoomEventSub, "data", log)
+}
+
+func (s *Socket) SendEventSub(data string) {
+	s.serv.BroadcastTo(RoomOverlay, "data", data)
 }
 
 func joinNewRoom(c *io.Channel, room string, l *log.Logger, rooms map[string]string) {
