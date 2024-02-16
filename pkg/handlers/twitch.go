@@ -21,7 +21,7 @@ type TwitchHandlers struct {
 	channelID    string
 	logger       *log.Logger
 	logic        *events.DBEventLogic
-	overlay      overlay.Overlay
+	overlays     []overlay.Overlay
 }
 
 type accessTokenT struct {
@@ -40,7 +40,7 @@ var (
 	errBadStatus = errors.New("bad status code")
 )
 
-func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, overlay overlay.Overlay) *TwitchHandlers {
+func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, overlays []overlay.Overlay) *TwitchHandlers {
 	return &TwitchHandlers{
 		client:       http.Client{},
 		clientID:     clientID,
@@ -48,7 +48,7 @@ func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.
 		channelID:    channelID,
 		logger:       errLogger,
 		logic:        events.NewEventLogic(),
-		overlay:      overlay,
+		overlays:     overlays,
 	}
 }
 
@@ -140,13 +140,17 @@ func (h *TwitchHandlers) EventSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.overlay.SendEventLog(fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
+	for _, overlay := range h.overlays {
+		overlay.SendEventLog(fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
+	}
 	bytes, err = json.Marshal(ed)
 	if err != nil {
 		h.logger.Println(err)
 		return
 	}
-	h.overlay.SendEventSub(string(bytes))
+	for _, overlay := range h.overlays {
+		overlay.SendEventSub(string(bytes))
+	}
 }
 
 func (h *TwitchHandlers) getHelixHeaders() (map[string]string, error) {
