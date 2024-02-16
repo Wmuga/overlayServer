@@ -49,7 +49,10 @@ func (l *DBEventLogic) GetLast() ([]eventsub.EventData, error) {
 	i := 0
 	for rows.Next() && i < 10 {
 		event := eventsub.EventData{}
-		rows.Scan(&event.Type, &event.Nickname)
+		err = rows.Scan(&event.Type, &event.Nickname)
+		if err != nil {
+			return nil, err
+		}
 		events[i] = event
 		i++
 	}
@@ -57,8 +60,5 @@ func (l *DBEventLogic) GetLast() ([]eventsub.EventData, error) {
 }
 
 func (l *DBEventLogic) checkFollowExists(event eventsub.EventData) bool {
-	if l.db.QueryRow(sqlCheckFollower, event.Nickname).Scan() != nil {
-		return false
-	}
-	return true
+	return l.db.QueryRow(sqlCheckFollower, event.Nickname).Scan() == nil
 }

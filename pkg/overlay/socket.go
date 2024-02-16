@@ -2,6 +2,7 @@ package overlay
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"server/pkg/events"
 
@@ -84,7 +85,10 @@ func RouteSocket(serv *io.Server, conLogger *log.Logger) Overlay {
 			conLogger.Printf("Error: %v\n", err)
 			return
 		}
-		c.Emit("last10", bytes)
+		err = c.Emit("last10", bytes)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}))
 
 	errcheck(serv.On("song", func(c *io.Channel, song any) {

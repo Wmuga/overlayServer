@@ -37,7 +37,7 @@ const (
 )
 
 var (
-	badStatus = errors.New("bad status code")
+	errBadStatus = errors.New("bad status code")
 )
 
 func NewTwitchHandlers(clientID, clientSecret, channelID string, errLogger *log.Logger, overlay overlay.Overlay) *TwitchHandlers {
@@ -133,7 +133,12 @@ func (h *TwitchHandlers) EventSub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ed := eventsub.Convert(*es)
-	h.logic.AddEvent(ed)
+	err = h.logic.AddEvent(ed)
+	if err != nil {
+		h.logger.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 
 	h.overlay.SendEventLog(fmt.Sprintf("\r\n%v: %v", ed.Type, ed.Nickname))
 	bytes, err = json.Marshal(ed)
@@ -167,7 +172,7 @@ func (h *TwitchHandlers) requestToken() (string, error) {
 
 func requestJson[T any](h *TwitchHandlers, method string, url string, headers map[string]string) (r T, e error) {
 	resp, err := h.request(method, url, headers)
-	if err != nil && err != badStatus {
+	if err != nil && err != errBadStatus {
 		return r, err
 	}
 	var res T
@@ -199,7 +204,7 @@ func (h *TwitchHandlers) request(method string, url string, headers map[string]s
 	}
 
 	if resp.StatusCode/100 != 2 {
-		return bytes, badStatus
+		return bytes, errBadStatus
 	}
 
 	return bytes, nil
