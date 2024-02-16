@@ -26,6 +26,7 @@ func main() {
 
 	socketServer := io.NewServer(transport.GetDefaultWebsocketTransport())
 	sock := overlay.RouteSocket(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
+	sse, handler := overlay.NewSSE(log.New(os.Stdout, "[SSE]: ", log.Ltime))
 
 	statics := handlers.NewStaticData("./static/html/", "./static/")
 	twitch := handlers.NewTwitchHandlers(
@@ -33,7 +34,7 @@ func main() {
 		os.Getenv("TWITCH_SECRET"),
 		os.Getenv("CHANNEL_ID"),
 		errLogger,
-		sock,
+		[]overlay.Overlay{sock, sse},
 	)
 	r := mux.NewRouter()
 
@@ -47,6 +48,7 @@ func main() {
 
 	r.HandleFunc("/eventsub/callback/", twitch.EventSub)
 	r.PathPrefix("/socket.io").Handler(socketServer)
+	r.PathPrefix("/sse").Handler(handler)
 	r.PathPrefix("/").HandlerFunc(statics.Static)
 	r.Use(middleware.GetRequestsLogger(log.New(os.Stdout, "[REQ]: ", log.Ltime)))
 
