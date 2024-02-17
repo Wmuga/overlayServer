@@ -74,12 +74,12 @@ function add_new_message(userstate,message){
     badges_container.style['border-right']= `4px solid ${usrColor}`
 
     for (let badge in userstate.badges)
-        {
-            let badge_img = document.createElement('img')
-            badge_img.src = badges[badge]['versions'][0]['image_url_2x']
-            badge_img.classList.add('badge')
-            badges_container.appendChild(badge_img)
-        }
+    {
+        let badge_img = document.createElement('img')
+        badge_img.src = twitchBadges[badge]['versions'][0]['image_url_2x']
+        badge_img.classList.add('badge')
+        badges_container.appendChild(badge_img)
+    }
 
     let username = document.createElement('div')
     username.classList.add('msg-username') 
@@ -96,7 +96,7 @@ function add_new_message(userstate,message){
 
 function delete_messages_from_user(username){
     for (let element of document.getElementsByClassName('msg-username')){
-        if (element.innerHTML.toLowerCase()==username){
+        if (element.innerHTML.toLowerCase() == username.toLowerCase()){
             element.parentElement.parentElement.parentElement.removeChild(element.parentElement.parentElement)
         }
     }
@@ -114,7 +114,7 @@ client.on('connected',() =>{
     console.log('connected')
     let bs = get_twitch_badges()['data']
     for (let b of bs){
-        badges[b["set_id"]] = b
+        twitchBadges[b["set_id"]] = b
     }
 });
 
