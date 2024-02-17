@@ -9,7 +9,7 @@ const options = {
 };
 
 
-let badges = {}
+let twitchBadges = {}
 let bttv_emotes = get_bttv_emotes()
 let song_overlay = document.getElementsByClassName('song-overlay')[0]
 let socket = io('ws://localhost:3000', {transports: ['websocket']})
