@@ -27,6 +27,7 @@ func main() {
 	socketServer := io.NewServer(transport.GetDefaultWebsocketTransport())
 	sock := overlay.RouteSocket(socketServer, log.New(os.Stdout, "[SOCK]: ", log.Ltime))
 	sse, handler := overlay.NewSSE(log.New(os.Stdout, "[SSE]: ", log.Ltime))
+	overlays := []overlay.Overlay{sock, sse}
 
 	statics := handlers.NewStaticData("./static/html/", "./static/")
 	twitch := handlers.NewTwitchHandlers(
@@ -34,7 +35,7 @@ func main() {
 		os.Getenv("TWITCH_SECRET"),
 		os.Getenv("CHANNEL_ID"),
 		errLogger,
-		[]overlay.Overlay{sock, sse},
+		overlays,
 	)
 	r := mux.NewRouter()
 
@@ -43,8 +44,8 @@ func main() {
 	s.HandleFunc("/bttv/global", twitch.GetBttvGlobalEmotes)
 	s.HandleFunc("/bttv/channel", twitch.GetBttvChannelEmotes)
 
-	s.HandleFunc("/mus", handlers.GetMusHandler(sock, errLogger)).Methods("POST")
-	s.HandleFunc("/str", handlers.GetStrHandler(sock, errLogger)).Methods("POST")
+	s.HandleFunc("/mus", handlers.GetMusHandler(overlays, errLogger)).Methods("POST")
+	s.HandleFunc("/str", handlers.GetStrHandler(overlays, errLogger)).Methods("POST")
 
 	r.HandleFunc("/eventsub/callback/", twitch.EventSub)
 	r.PathPrefix("/socket.io").Handler(socketServer)

@@ -12,7 +12,7 @@ type strBody struct {
 	Str string `json:"str"`
 }
 
-func GetMusHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
+func GetMusHandler(overlays []overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, err := io.ReadAll(r.Body)
@@ -20,11 +20,13 @@ func GetMusHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter,
 			l.Println(err)
 			return
 		}
-		s.SendSong(string(body))
+		for _, ov := range overlays {
+			ov.SendSong(string(body))
+		}
 	}
 }
 
-func GetStrHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
+func GetStrHandler(overlays []overlay.Overlay, l *log.Logger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		body, err := io.ReadAll(r.Body)
@@ -38,6 +40,8 @@ func GetStrHandler(s overlay.Overlay, l *log.Logger) func(w http.ResponseWriter,
 			l.Println(err)
 			return
 		}
-		s.SendViewer(data.Str)
+		for _, ov := range overlays {
+			ov.SendViewer(data.Str)
+		}
 	}
 }

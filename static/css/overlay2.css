@@ -8,6 +8,12 @@
 body{
     font-family: Roboto;
     font-size: 16pt;
+    text-shadow:
+        var(--outline-size) var(--outline-size) 0 #000,
+        var(--outline-size-neg) var(--outline-size) 0 #000,
+        var(--outline-size-neg) var(--outline-size-neg) 0 #000,
+        var(--outline-size) var(--outline-size-neg) 0 #000;
+    color: #fff;
 }
 
 #chat{
@@ -19,8 +25,8 @@ body{
     height: var(--chat-height);
     overflow-y: hidden;
     overflow-x: hidden;
-    left: 1svw;
-    top: 1svw;
+    left: 1%;
+    top: 1%;
     transition: opacity 500ms ease-in-out;
 }
 
@@ -45,13 +51,34 @@ body{
 
 .message
 {
-    text-shadow:
-        var(--outline-size) var(--outline-size) 0 #000,
-        var(--outline-size-neg) var(--outline-size) 0 #000,
-        var(--outline-size-neg) var(--outline-size-neg) 0 #000,
-        var(--outline-size) var(--outline-size-neg) 0 #000;
-    color: #fff;
     word-break: break-all;
+}
+
+#music{
+    position: absolute;
+    right: 0.5%;
+    top: 1%;
+    width: max-content;
+    max-width: 40%;
+    display: flex;
+    flex-direction: row;
+    overflow-x: hidden;
+    font-size: 20pt;
+    opacity: 0;
+}
+
+#artist{
+    flex-shrink: 0;
+}
+
+#event{
+    position: absolute;
+    max-width: 300px;
+    max-height: 300px;
+    justify-content: end;
+    bottom: 20%;
+    right: 20%;
+    opacity: 0;
 }
 
 @keyframes appear {
@@ -62,18 +89,6 @@ body{
 
     to {
         margin-left: 0%;
-        width: 100%;
-    }
-}
-
-@keyframes appear-right {
-    from {
-        margin-right: 100%;
-        width: 0%;
-    }
-
-    to {
-        margin-right: 0%;
         width: 100%;
     }
 }

@@ -8,27 +8,19 @@
     <script src = "/static/js/request.js"></script>
 </head>
 <body>
-    <audio class="follow-sound">
-        <source src="/static/sounds/clem-follow.mp3" type = "audio/mpeg">
-    </audio>
-    <audio class="raid-sound">
-        <source src="/static/sounds/woah.mp3" type = "audio/mpeg">
-    </audio>
-
     <div id="chat">
     </div>
 
     <div id="music">
-        <div id="music-data">
-            <div id="artist">ArtistName</div>
-            &nbsp;-&nbsp;
-            <div id="title">SongName</div>
-        </div>
-        &nbsp;
+        <span id="artist">ArtistName</span>
+        <span>&nbsp;-&nbsp;</span>
+        <span id="title">SongName</span>
+        <span>&nbsp;</span>
     </div>
 
     <div id="event">
-
+        <div id="event-img-container"><img id="event-img"/></div>
+        <span id="event-text"></span>
     </div>
 
     <script src="/static/js/overlay2.js"></script>
